@@ -1,79 +1,160 @@
-<p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
+# Local (Email/password) and social authentication with Laravel and Nuxt
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+Welcome, this repo contains the end result of the series [Authentication in Laravel and Nuxt](https://www.youtube.com/playlist?list=PLeZmuYT0mSPNmQie2QyoY-3hxQxDZwi22) and [social Authentication in Laravel and Nuxt](https://www.youtube.com/playlist?list=PLeZmuYT0mSPPeyIMa6oURCgpCMEd_sD_n)
 
-## About Laravel
+Please see the authentication branch if you're looking for the source code that belongs to Authentication in Laravel and Nuxt
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Setup
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Start off by cloning the repo. Make sure to switch branches if you want to have a different starting point.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+git clone https://github.com/fritsvt/laravel-nuxt-authentication.git
+```
 
-## Learning Laravel
+Make sure you are in the main project folder:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```
+cd laravel-nuxt-authentication
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## server-side / API setup (Laravel)
 
-## Laravel Sponsors
+Run:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```
+composer install
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
-- [Hyper Host](https://hyper.host)
-- [Appoly](https://www.appoly.co.uk)
-- [OP.GG](https://op.gg)
-- [云软科技](http://www.yunruan.ltd/)
+create a .env file by copying the contents from .env.example.
 
-## Contributing
+```
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Update the DB settings in your .env file
+Then, Migrate the database.
 
-## Code of Conduct
+```
+php artisan migrate --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Generate the keys:
 
-## Security Vulnerabilities
+```
+php artisan key:generate
+php artisan jwt:secret
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Make sure the settings (client ids, secret keys, redirect URLs) for the social auth providers you want to use are set up correctly:
 
-## License
+```
+# Set these up at https://github.com/settings/applications/new
+GITHUB_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxx
+GITHUB_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+GITHUB_REDIRECT_URL=http://localhost:8000/api/auth/login/github/callback
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Set these up at https://console.developers.google.com/
+GOOGLE_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxx
+GOOGLE_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+GOOGLE_REDIRECT_URL=http://localhost:8000/api/auth/login/google/callback
+
+# Set these up at https://developers.facebook.com/
+FACEBOOK_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxx
+FACEBOOK_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+FACEBOOK_REDIRECT_URL=http://localhost:8000/api/auth/login/facebook/callback
+
+# Set these up at https://www.linkedin.com/developers/apps/
+LINKEDIN_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxx
+LINKEDIN_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+LINKEDIN_REDIRECT_URL=http://localhost:8000/api/auth/login/linkedin/callback
+
+# Set these up at https://apps.twitter.com/
+TWITTER_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxx
+TWITTER_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWITTER_REDIRECT_URL=http://localhost:8000/api/auth/login/twitter/callback
+
+```
+
+Note that you can do the same for other social auth services like Linkedin, Twitter, Gitlab, etc. Just make sure that the config settings exist in config/services.php and the keys are set in your .env file.
+Example:
+
+```
+    'linkedin' => [
+        'client_id' => env('LINKEDIN_CLIENT_ID'),
+        'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
+        'redirect' => env('LINKEDIN_REDIRECT_URL'),
+    ],
+
+```
+
+Change this setting, if needed. 
+If set, we will save the email that comes back from social login, regardless of whether or not it has been verified by the provider (Google is the only one that does this right now). If not set, we will store a dummy email to the DB like: 'linkedin-id123456@linkedin.local'
+```
+RETRIEVE_UNVERIFIED_SOCIAL_EMAIL=0
+```
+
+IMPORTANT: Make sure that your .env file is updated with the right settings for APP_URL (for your back-end APIs) and CLIENT_BASE_URL (for your front-end / Nuxt). These values need to match what you will set in the client-side setup section.
+
+```
+APP_URL=http://localhost:8000
+CLIENT_BASE_URL= http://localhost:3000
+```
+
+Finally, start the Laravel API server:
+
+```
+php artisan serve
+or
+php artisan serve --port=8000
+```
+
+## client-side / front-end setup (Nuxt.js):
+
+Now navigate to the client directory where the nuxt project is located.
+
+```
+cd client
+```
+
+Now we're going to install the node modules.
+
+```
+npm install
+```
+
+Update nuxt.config.js to match the server:port where your Laravel API server is running:
+This needs to be done in 2 places:
+
+1. baseUrl in the env{} section (either make sure process.env.BASE_URL is set, or change the default)
+
+```
+   env: {
+    baseUrl: process.env.BASE_URL || 'https://jwt-auth.test.com/api/'
+   },
+```
+
+Example: baseUrl: process.env.BASE_URL || 'http://localhost:8000/api/'
+(dont forget the trailing slash)
+
+2. baseURL in the axios: {} section
+
+```
+  /*
+  ** Axios module configuration
+  */
+  axios: {
+    // See https://github.com/nuxt-community/axios-module#options
+    baseURL: 'http://jwt-auth.test/api'
+  },
+```
+
+Example: baseURL: "http://localhost:8000/api" (no trailing slash here)
+
+Finally, start the nuxt development server.
+
+```
+npm run dev
+```
+
+Now, navigate to the front-end URL displayed on the Nuxt terminal (default is http://localhost:3000) and click 'Register'. Click on the logo for the social auth service you have configured, and see the social authentication in action!
